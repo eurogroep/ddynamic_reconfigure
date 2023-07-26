@@ -1,94 +1,78 @@
-#include <ros/ros.h>
+/**
+ * Copyright 2019 PAL Robotics S.L.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice,
+ * this list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ * this list of conditions and the following disclaimer in the documentation
+ * and/or other materials provided with the distribution.
+ *
+ * 3. Neither the name of the copyright holder nor the names of its
+ * contributors may be used to endorse or promote products derived from this
+ * software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ */
+
 #include <ddynamic_reconfigure/ddynamic_reconfigure.h>
+
+#include <rclcpp/rclcpp.hpp>
 
 using namespace ddynamic_reconfigure;
 
-/**
-  Topics:
-  * /dynamic_tutorials/parameter_descriptions [dynamic_reconfigure/ConfigDescription]
-  * /dynamic_tutorials/parameter_updates [dynamic_reconfigure/Config]
-
-  Services:
-  * /dynamic_tutorials/set_parameter:  dynamic_reconfigure/Reconfigure
-*/
-
-int main(int argc, char **argv)
+void callback()
 {
-  ros::init(argc, argv, "fake_dynamic_reconfigure");
+  std::cout << "callback!" << std::endl;
+}
 
-  ros::NodeHandle nh("fake_dyanmic_reconfigure");
+int main(int argc, char** argv)
+{
+  rclcpp::init(argc, argv);
 
-  double double_test = 0.0;
-  double double_range = 2;
-  int int_test = 0;
-  bool bool_test = false;
-  double changing_variable = 0.0;
-  std::string str_test = "";
-  DDynamicReconfigure ddr(nh);
-  DDynamicReconfigure ddr2(ros::NodeHandle(nh, "nh2"));
-  DDynamicReconfigure ddr3(ros::NodeHandle(nh, "nh3"));
-
-  ddr.RegisterVariable(&double_test, "double_test");
-  ddr.RegisterVariable(&double_range, "double_range_test", 0, 10);
-  ddr.RegisterVariable(&int_test, "int_test");
-  ddr.RegisterVariable(&bool_test, "bool_test");
-  ddr.registerVariable("str_test", &str_test);
-  ddr.RegisterVariable(&changing_variable, "changing_variable");
-
-  std::map<std::string, int> enum_map = { { "ZERO", 0 }, { "ONE", 1 }, { "ONE_HUNDRED", 100 } };
-  ddr.registerEnumVariable<int>(
-      "enum_int", enum_map["ONE"],
-      [](int new_value) { ROS_INFO_STREAM("Value changed to " << new_value); },
-      "Enum parameter", enum_map, "enum description");
-
-  std::map<std::string, std::string> str_enum_map = { { "ZERO", "zero" },
-                                                      { "ONE", "one" },
-                                                      { "ONE_HUNDRED", "one hundred" } };
-  ddr.registerEnumVariable<std::string>(
-      "enum_string", str_enum_map["ONE"],
-      [](std::string new_value) { ROS_INFO_STREAM("Value changed to " << new_value); },
-      "Enum parameter", str_enum_map, "enum description");
-
-  std::map<std::string, double> double_enum_map = { { "ZERO", 0.0 },
-                                                    { "ONE", 1.1 },
-                                                    { "ONE_HUNDRED", 100.001 } };
-  ddr.registerEnumVariable<double>(
-      "enum_double", double_enum_map["ONE"],
-      [](double new_value) { ROS_INFO_STREAM("Value changed to " << new_value); },
-      "Enum parameter", double_enum_map, "enum description");
-
-
-  std::map<std::string, bool> bool_enum_map = { { "false", false },
-                                                { "true", true },
-                                                { "also true", true } };
-  ddr.registerEnumVariable<bool>(
-      "enum_bool", bool_enum_map["ONE"],
-      [](bool new_value) { ROS_INFO_STREAM("Value changed to " << new_value); },
-      "Enum parameter", bool_enum_map, "enum description");
-
-  ddr2.RegisterVariable(&double_test, "double_test");
-  ddr2.RegisterVariable(&int_test, "int_test");
-  ddr2.RegisterVariable(&bool_test, "bool_test");
-
-  ddr.PublishServicesTopics();
-  ddr2.PublishServicesTopics();
-  ddr3.PublishServicesTopics();
-
-
-  ROS_INFO("Spinning node");
-
-  while (nh.ok())
+  auto node = std::make_shared<rclcpp::Node>("fake_dynamic_reconfigure");
   {
-    changing_variable += 0.5;
-    std::cerr << "changing_variable " << changing_variable << std::endl;
-    std::cerr << "double " << double_test << std::endl;
-    std::cerr << "double range" << double_range << std::endl;
-    std::cerr << "int " << int_test << std::endl;
-    std::cerr << "bool " << bool_test << std::endl;
-    std::cerr << "str " << str_test << std::endl;
-    std::cerr << "*********" << std::endl;
-    ros::spinOnce();
-    ros::Duration(1.0).sleep();
+    double double_test = 0.0;
+    double double_range = 2;
+    int int_test = 0;
+    bool bool_test = false;
+    std::string str_test = "";
+
+    DDynamicReconfigure ddr(node);
+
+    ddr.registerVariable("bool_test", &bool_test, "An awesome boolean!");
+    ddr.registerVariable("double_test", &double_test, "An awesome double!");
+    ddr.registerVariable("double_range_test", &double_range, "Double range awesome!", 0., 10.);
+    ddr.registerVariable("int_test", &int_test, "Cool int!");
+    ddr.registerVariable("str_test", &str_test, "I am a little string!");
+    ddr.publishServicesTopics();
+    ddr.setUserCallback(std::bind(&callback));
+
+    while (rclcpp::ok())
+    {
+      rclcpp::spin_some(node);
+      std::cout << "double_test " << double_test << std::endl;
+      std::cout << "double_range_test (0..10) " << double_range << std::endl;
+      std::cout << "int_test " << int_test << std::endl;
+      std::cout << "bool_test " << bool_test << std::endl;
+      std::cout << "str_test " << str_test << std::endl;
+      std::cout << "*********" << std::endl;
+      rclcpp::sleep_for(std::chrono::seconds(1));
+    }
   }
+  rclcpp::shutdown();
   return 0;
 }

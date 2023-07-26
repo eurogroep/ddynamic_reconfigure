@@ -1,68 +1,56 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.5)
 project(ddynamic_reconfigure)
 
-find_package(catkin REQUIRED COMPONENTS
-  dynamic_reconfigure
-  roscpp
-)
+# Default to C++14
+if (NOT CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 14)
+endif ()
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
-set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
+if (CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  add_compile_options(-Wall -Wextra -Wpedantic)
+endif ()
 
-catkin_package(
-  INCLUDE_DIRS include
-  LIBRARIES ${PROJECT_NAME}
-  CATKIN_DEPENDS roscpp dynamic_reconfigure
-)
+##################
+##  Build setup ##
+##################
+
+find_package(ament_cmake REQUIRED)
+find_package(rclcpp REQUIRED)
+
+##############
+##   Build  ##
+##############
 
 include_directories(
   include
 )
-include_directories(
-  SYSTEM 
-  ${catkin_INCLUDE_DIRS}
-)
 
-add_library(${PROJECT_NAME} src/ddynamic_reconfigure.cpp)
+add_library(${PROJECT_NAME} SHARED src/ddynamic_reconfigure.cpp)
+ament_target_dependencies(${PROJECT_NAME} rclcpp)
 target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
-#add_executable(dynamic_reconfigure_node src/dynamic_reconfigure_node.cpp)
-#target_link_libraries(dynamic_reconfigure_node ${catkin_LIBRARIES})
 
-#make sure configure headers are built before any node using them
-#add_dependencies(dynamic_reconfigure_node ${PROJECT_NAME}_gencfg)
-
-#############  Test #################
 add_executable(fake_dynamic_reconfigure_server test/fake_dynamic_reconfigure_server.cpp)
-target_link_libraries(fake_dynamic_reconfigure_server ${PROJECT_NAME} ${catkin_LIBRARIES})
-
-add_executable(test_bool_dynamic_reconfigure_server test/test_bool_dynamic_reconfigure_server.cpp)
-target_link_libraries(test_bool_dynamic_reconfigure_server ${PROJECT_NAME} ${catkin_LIBRARIES})
-
-install(TARGETS ${PROJECT_NAME}
-   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-)
-
-install(DIRECTORY include/${PROJECT_NAME}/
-   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-)
+target_link_libraries(fake_dynamic_reconfigure_server ${PROJECT_NAME})
 
 #############
-## Testing ##
+## Install ##
 #############
 
-if (CATKIN_ENABLE_TESTING)
-    find_package(rostest REQUIRED)
-    if (NOT WIN32)
-    add_rostest_gmock(ddynamic_reconfigure-test test/ddynamic_reconfigure.test test/test_ddynamic_reconfigure.cpp)
-    target_link_libraries(ddynamic_reconfigure-test
-                                ${PROJECT_NAME})
-    endif()
-    
-    add_executable(ddynamic_reconfigure_auto_update_test
-        test/ddynamic_reconfigure_auto_update_test.cpp)
-    target_link_libraries(ddynamic_reconfigure_auto_update_test ${PROJECT_NAME}
-        ${catkin_LIBRARIES})
+install(
+  DIRECTORY include/
+  DESTINATION include
+)
 
-endif(CATKIN_ENABLE_TESTING)
+install(
+  TARGETS
+  ${PROJECT_NAME}
+  fake_dynamic_reconfigure_server
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION lib/${PROJECT_NAME}
+)
+
+ament_export_include_directories(include)
+ament_export_libraries(${PROJECT_NAME})
+ament_export_dependencies(rclcpp)
+ament_package()

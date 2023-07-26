@@ -2,6 +2,10 @@
 Changelog for package ddynamic_reconfigure
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.0.0 (2023-07-27)
+------------------
+* feat: ros2 port for pointer interface without callbacks
+
 0.4.1 (2021-01-18)
 ------------------
 * Merge branch 'atomic-fix' into 'erbium-devel'

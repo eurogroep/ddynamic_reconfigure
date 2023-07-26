@@ -1,137 +1,70 @@
 # ddynamic_reconfigure
 
-The ddynamic_reconfigure package is a C++ extension of [dynamic_reconfigure](https://github.com/ros/dynamic_reconfigure) that allows modifying parameters of a ROS node using the dynamic_reconfigure framework without having to write cfg files.
+ROS2 port of the [ddynamic_reconfigure ROS1 package](https://github.com/pal-robotics/ddynamic_reconfigure) in order
+to facilitate a smooth transition from `ros1` to `ros2`. Not everything is ported but the API should be more or less
+consistent for a relative easy port of your ros1 app to ros2.
 
-## Usage
+If you are looking for a dedicated solution, it might be better to check out alternatives,
+e.g. https://github.com/PickNikRobotics/generate_parameter_library
 
-This package requires at least C++11.
-If you have cmake version at least 3.1 the easiest way to do it is:
-`set (CMAKE_CXX_STANDARD 11)`
+## Example
 
-Modifying in place a variable:
-```cpp
-#include <ros/ros.h>
-#include <ddynamic_reconfigure/ddynamic_reconfigure.h>
-
-int main(int argc, char **argv) {
-    // ROS init stage
-    ros::init(argc, argv, "ddynamic_tutorials");
-    ros::NodeHandle nh;
-    ddynamic_reconfigure::DDynamicReconfigure ddr;
-    int int_param = 0;
-    ddr.registerVariable<int>("int_param", &int_param, "param description");
-    ddr.publishServicesTopics();
-    // Now parameter can be modified from the dynamic_reconfigure GUI or other tools and the variable int_param is updated automatically
-    
-    int_param = 10; //This will also update the dynamic_reconfigure tools with the new value 10
-    ros::spin();
-    return 0;
- }
+```
+$ ros2 run ddynamic_reconfigure fake_dynamic_reconfigure_server 
+double_test 0
+double_range_test (0..10) 2
+int_test 0
+bool_test 0
+str_test 
+*********
 ```
 
-Modifying a variable via a callback:
-```cpp
-#include <ros/ros.h>
-#include <ddynamic_reconfigure/ddynamic_reconfigure.h>
-
-int global_int;
-
-void paramCb(int new_value)
-{
-   global_int = new_value;
-   ROS_INFO("Param modified");
-}
-
-int main(int argc, char **argv) {
-    // ROS init stage
-    ros::init(argc, argv, "ddynamic_tutorials");
-    ros::NodeHandle nh;
-    ddynamic_reconfigure::DDynamicReconfigure ddr;
-    
-    ddr.registerVariable<int>("int_param", 10 /* initial value */, boost::bind(paramCb, _1), "param description");
-    ddr.publishServicesTopics();
-    // Now parameter can be modified from the dynamic_reconfigure GUI or other tools and the callback is called on each update
-    ros::spin();
-    return 0;
- }
+```
+$ ros2 param list
+/fake_dynamic_reconfigure:
+  bool_test
+  double_range_test
+  double_test
+  int_test
+  qos_overrides./parameter_events.publisher.depth
+  qos_overrides./parameter_events.publisher.durability
+  qos_overrides./parameter_events.publisher.history
+  qos_overrides./parameter_events.publisher.reliability
+  str_test
+  use_sim_time
 ```
 
-Registering an enum:
-
-```cpp
-
-#include <ros/ros.h>
-#include <ddynamic_reconfigure/ddynamic_reconfigure.h>
-
-int main(int argc, char **argv) {
-    // ROS init stage
-    ros::init(argc, argv, "ddynamic_tutorials");
-    ros::NodeHandle nh;
-    ddynamic_reconfigure::DDynamicReconfigure ddr;
-    
-    std::map<std::string, std::string> enum_map = {{"Key 1", "Value 1"}, {"Key 2", "Value 2"}};
-    std::string enum_value = enum_map["Key 1"];
-    ddr.registerEnumVariable<std::string>("string_enum", &enum_value,"param description", enum_map);
-    ddr.publishServicesTopics();
-    ros::spin();
-    return 0;
- }
+```
+$ ros2 param describe /fake_dynamic_reconfigure bool_test double_range_test double_test int_test str_test
+Parameter name: bool_test
+  Type: boolean
+  Description: An awesome boolean!
+  Constraints:
+Parameter name: double_range_test
+  Type: double
+  Description: Double range awesome!
+  Constraints:
+    Min value: 0.0
+    Max value: 10.0
+Parameter name: double_test
+  Type: double
+  Description: An awesome double!
+  Constraints:
+    Min value: 2.2250738585072014e-308
+    Max value: 1.7976931348623157e+308
+Parameter name: int_test
+  Type: integer
+  Description: Cool int!
+  Constraints:
+    Min value: -2147483648
+    Max value: 2147483647
+Parameter name: str_test
+  Type: string
+  Description: I am a little string!
+  Constraints:
 ```
 
-Registering variables in a private namespace "ddynamic_tutorials/other_namespace/int_param":
-
-```cpp
-
-#include <ros/ros.h>
-#include <ddynamic_reconfigure/ddynamic_reconfigure.h>
-
-int main(int argc, char **argv) {
-    // ROS init stage
-    ros::init(argc, argv, "ddynamic_tutorials");
-    ros::NodeHandle nh("~/other_namespace");
-    ddynamic_reconfigure::DDynamicReconfigure ddr(nh);
-
-    int int_param = 0;
-    ddr.registerVariable<int>("int_param", &int_param, "param description");
-    ddr.publishServicesTopics();
-    
-    ros::spin();
-    return 0;
-}
 ```
-
-
-Same scenario, but with the NodeHandle created after the ddr instantiation:
-
-```cpp
-
-#include <ros/ros.h>
-#include <ddynamic_reconfigure/ddynamic_reconfigure.h>
-
-std::unique_ptr<ddynamic_reconfigure::DDynamicReconfigure> ddr;
-int main(int argc, char **argv) {
-    // ROS init stage
-    ros::init(argc, argv, "ddynamic_tutorials");
-    ros::NodeHandle nh("~/other_namespace");
-
-    ddr.reset(new ddynamic_reconfigure::DDynamicReconfigure(nh));
-    int int_param = 0;
-    ddr->registerVariable<int>("int_param", &int_param, "param description");
-    ddr->publishServicesTopics();
-    
-    ros::spin();
-    return 0;
-}
+$ ros2 param set /fake_dynamic_reconfigure bool_test true
+Set parameter successful
 ```
-
-
-## Issues
-### Undefined reference to registerVariable or registerEnumVariable
-
-These methods are templated, but the implementation is hidden, and there are explicit template instantiations for `int`, `bool`, `double` and `std::string`. If you are getting an undefined reference to one of these methods, make sure that you are passing parameters of this type.
-
-
-
-
-
-
