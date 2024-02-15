@@ -2,6 +2,11 @@
 Changelog for package ddynamic_reconfigure
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* feat: UserCallback2 that passes updated parameters
+* Contributors: Rein Appeldoorn
+
 1.0.0 (2023-07-27)
 ------------------
 * feat: ros2 port for pointer interface without callbacks
