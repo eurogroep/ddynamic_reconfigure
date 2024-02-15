@@ -2,8 +2,8 @@
 Changelog for package ddynamic_reconfigure
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.1.0 (2024-02-15)
+------------------
 * feat: UserCallback2 that passes updated parameters
 * Contributors: Rein Appeldoorn
 
