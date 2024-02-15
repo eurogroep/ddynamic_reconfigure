@@ -70,6 +70,7 @@ public:
   virtual void publishServicesTopics();
 
   typedef std::function<void()> UserCallbackType;
+  typedef std::function<void(const std::vector<rclcpp::Parameter>&)> UserCallbackType2;
 
   /**
    * @brief setUserCallback An optional callback that will be called whenever a value is
@@ -78,6 +79,10 @@ public:
   virtual void setUserCallback(const UserCallbackType& callback);
 
   virtual void clearUserCallback();
+
+  virtual void setUserCallback2(const UserCallbackType2& callback);
+
+  virtual void clearUserCallback2();
 
 protected:
   rclcpp::Node::SharedPtr node_;
@@ -95,6 +100,7 @@ protected:
   std::vector<std::shared_ptr<RegisteredParam<std::string>>> registered_string_;
 
   UserCallbackType user_callback_;
+  UserCallbackType2 user_callback2_;
 };
 
 using DDynamicReconfigurePtr = std::shared_ptr<DDynamicReconfigure>;

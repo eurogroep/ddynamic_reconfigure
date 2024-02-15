@@ -87,6 +87,16 @@ void DDynamicReconfigure::clearUserCallback()
   user_callback_ = {};
 }
 
+void DDynamicReconfigure::setUserCallback2(const DDynamicReconfigure::UserCallbackType2& callback)
+{
+  user_callback2_ = callback;
+}
+
+void DDynamicReconfigure::clearUserCallback2()
+{
+  user_callback2_ = {};
+}
+
 rcl_interfaces::msg::SetParametersResult getResult(bool successful = true, const std::string& reason = "")
 {
   rcl_interfaces::msg::SetParametersResult result;
@@ -117,6 +127,11 @@ DDynamicReconfigure::paramUpdatedCallback(const std::vector<rclcpp::Parameter>& 
   if (user_callback_)
   {
     user_callback_();
+  }
+
+  if (user_callback2_)
+  {
+    user_callback2_(parameters);
   }
 
   try
