@@ -51,7 +51,7 @@ int main(int argc, char** argv)
     bool bool_test = false;
     std::string str_test = "";
 
-    DDynamicReconfigure ddr(node);
+    DDynamicReconfigure<rclcpp::Node::SharedPtr> ddr(node);
 
     ddr.registerVariable("bool_test", &bool_test, "An awesome boolean!");
     ddr.registerVariable("double_test", &double_test, "An awesome double!");
