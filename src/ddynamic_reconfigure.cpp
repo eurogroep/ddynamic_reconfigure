@@ -124,16 +124,6 @@ DDynamicReconfigure::paramUpdatedCallback(const std::vector<rclcpp::Parameter>& 
 {
   RCLCPP_DEBUG(node_->get_logger(), "paramUpdatedCallback");
 
-  if (user_callback_)
-  {
-    user_callback_();
-  }
-
-  if (user_callback2_)
-  {
-    user_callback2_(parameters);
-  }
-
   try
   {
     for (const auto& p : parameters)
@@ -163,6 +153,16 @@ DDynamicReconfigure::paramUpdatedCallback(const std::vector<rclcpp::Parameter>& 
   catch (const std::runtime_error& e)
   {
     return getResult(false, std::string(e.what()));
+  }
+
+  if (user_callback_)
+  {
+    user_callback_();
+  }
+
+  if (user_callback2_)
+  {
+    user_callback2_(parameters);
   }
 
   return getResult();
