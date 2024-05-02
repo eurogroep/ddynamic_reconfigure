@@ -1,7 +1,7 @@
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Changelog for package ddynamic_reconfigure
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-1.1.1 (2024-02-15)
+1.1.1 (2024-05-02)
 ------------------
 * fix: UserCallback2 updates local parameters before callback
 * Contributors: Jeanine van Bruggen
