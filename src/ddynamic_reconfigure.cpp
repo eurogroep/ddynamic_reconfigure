@@ -35,7 +35,7 @@
 namespace ddynamic_reconfigure
 {
 
-template <class NodeT>
+template <typename NodeT>
 DDynamicReconfigure<NodeT>::DDynamicReconfigure(NodeT node): node_(node)
 {
 }

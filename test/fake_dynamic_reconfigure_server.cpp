@@ -31,6 +31,7 @@
 #include <ddynamic_reconfigure/ddynamic_reconfigure.h>
 
 #include <rclcpp/rclcpp.hpp>
+#include <rclcpp_lifecycle/lifecycle_node.hpp>
 
 using namespace ddynamic_reconfigure;
 
@@ -44,6 +45,7 @@ int main(int argc, char** argv)
   rclcpp::init(argc, argv);
 
   auto node = std::make_shared<rclcpp::Node>("fake_dynamic_reconfigure");
+  auto lifecycle_node = std::make_shared<rclcpp_lifecycle::LifecycleNode>("fake_dynamic_reconfigure");
   {
     double double_test = 0.0;
     double double_range = 2;
@@ -52,6 +54,7 @@ int main(int argc, char** argv)
     std::string str_test = "";
 
     DDynamicReconfigure<rclcpp::Node::SharedPtr> ddr(node);
+    DDynamicReconfigure<rclcpp_lifecycle::LifecycleNode::SharedPtr> ddr_ln(lifecycle_node);
 
     ddr.registerVariable("bool_test", &bool_test, "An awesome boolean!");
     ddr.registerVariable("double_test", &double_test, "An awesome double!");
@@ -60,6 +63,14 @@ int main(int argc, char** argv)
     ddr.registerVariable("str_test", &str_test, "I am a little string!");
     ddr.publishServicesTopics();
     ddr.setUserCallback(std::bind(&callback));
+
+    ddr_ln.registerVariable("bool_test", &bool_test, "An awesome boolean!");
+    ddr_ln.registerVariable("double_test", &double_test, "An awesome double!");
+    ddr_ln.registerVariable("double_range_test", &double_range, "Double range awesome!", 0., 10.);
+    ddr_ln.registerVariable("int_test", &int_test, "Cool int!");
+    ddr_ln.registerVariable("str_test", &str_test, "I am a little string!");
+    ddr_ln.publishServicesTopics();
+    ddr_ln.setUserCallback(std::bind(&callback));
 
     while (rclcpp::ok())
     {
