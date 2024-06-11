@@ -97,7 +97,6 @@ ParamT declare_parameter_if_not_declared(
 {
   if (!node->has_parameter(param_name))
   {
-    std::cout << "declare" << std::endl;
     return node->declare_parameter(param_name, default_value, parameter_descriptor);
   }
   else
