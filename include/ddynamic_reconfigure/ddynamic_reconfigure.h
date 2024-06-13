@@ -44,7 +44,7 @@ namespace ddynamic_reconfigure
 /**
  * @brief The DDynamicReconfigure class allows to use ROS1 ddynamic reconfigure interface using the ROS2 parameter API
  */
-template<typename NodeT>
+template <typename NodeT>
 class DDynamicReconfigure
 {
 public:
@@ -52,7 +52,7 @@ public:
    * @param node Pointer to the ROS node
    */
   explicit DDynamicReconfigure(NodeT node);
-  //TODO(Yannick de Hoop): Since C++17 template deduction in constructors is supported.
+  // TODO(Yannick de Hoop): Since C++17 template deduction in constructors is supported.
   /**
    * @brief registerVariable register a variable to be modified via the
    * dynamic_reconfigure API. When a change is made, it will be reflected in the
@@ -106,7 +106,7 @@ protected:
   UserCallbackType2 user_callback2_;
 };
 
-template<typename NodeT>
+template <typename NodeT>
 using DDynamicReconfigurePtr = std::shared_ptr<DDynamicReconfigure<NodeT>>;
 
 template class DDynamicReconfigure<rclcpp::Node::SharedPtr>;
