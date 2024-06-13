@@ -37,21 +37,22 @@
 #include <functional>
 #include <memory>
 #include <rclcpp/rclcpp.hpp>
+#include <rclcpp_lifecycle/lifecycle_node.hpp>
 
 namespace ddynamic_reconfigure
 {
 /**
  * @brief The DDynamicReconfigure class allows to use ROS1 ddynamic reconfigure interface using the ROS2 parameter API
  */
+template <typename NodeT>
 class DDynamicReconfigure
 {
 public:
   /**
    * @param node Pointer to the ROS node
    */
-  explicit DDynamicReconfigure(rclcpp::Node::SharedPtr node);
-  virtual ~DDynamicReconfigure() = default;
-
+  explicit DDynamicReconfigure(NodeT node);
+  // TODO(Yannick de Hoop): Since C++17 template deduction in constructors is supported.
   /**
    * @brief registerVariable register a variable to be modified via the
    * dynamic_reconfigure API. When a change is made, it will be reflected in the
@@ -62,6 +63,8 @@ public:
   template <typename T>
   void registerVariable(const std::string& name, T* variable, const std::string& description = "", T min = getMin<T>(),
                         T max = getMax<T>());
+
+  virtual ~DDynamicReconfigure() = default;
 
   /**
    * @brief publishServicesTopics starts the server once all the needed variables are
@@ -85,7 +88,7 @@ public:
   virtual void clearUserCallback2();
 
 protected:
-  rclcpp::Node::SharedPtr node_;
+  NodeT node_;
 
   rcl_interfaces::msg::SetParametersResult paramUpdatedCallback(const std::vector<rclcpp::Parameter>& parameters);
   rclcpp::node_interfaces::OnSetParametersCallbackHandle::SharedPtr param_updated_cb_;
@@ -103,5 +106,9 @@ protected:
   UserCallbackType2 user_callback2_;
 };
 
-using DDynamicReconfigurePtr = std::shared_ptr<DDynamicReconfigure>;
+template <typename NodeT>
+using DDynamicReconfigurePtr = std::shared_ptr<DDynamicReconfigure<NodeT>>;
+
+template class DDynamicReconfigure<rclcpp::Node::SharedPtr>;
+template class DDynamicReconfigure<rclcpp_lifecycle::LifecycleNode::SharedPtr>;
 }  // namespace ddynamic_reconfigure

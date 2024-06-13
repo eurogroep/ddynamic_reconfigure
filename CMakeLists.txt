@@ -16,6 +16,7 @@ endif ()
 
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(rclcpp_lifecycle REQUIRED)
 
 ##############
 ##   Build  ##
@@ -26,8 +27,8 @@ include_directories(
 )
 
 add_library(${PROJECT_NAME} SHARED src/ddynamic_reconfigure.cpp)
-ament_target_dependencies(${PROJECT_NAME} rclcpp)
-target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
+ament_target_dependencies(${PROJECT_NAME} rclcpp rclcpp_lifecycle)
+target_link_libraries(${PROJECT_NAME})
 
 add_executable(fake_dynamic_reconfigure_server test/fake_dynamic_reconfigure_server.cpp)
 target_link_libraries(fake_dynamic_reconfigure_server ${PROJECT_NAME})
@@ -53,4 +54,5 @@ install(
 ament_export_include_directories(include)
 ament_export_libraries(${PROJECT_NAME})
 ament_export_dependencies(rclcpp)
+ament_export_dependencies(rclcpp_lifecycle)
 ament_package()
