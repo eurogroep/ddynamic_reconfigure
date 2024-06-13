@@ -107,7 +107,7 @@ void DDynamicReconfigure<NodeT>::registerVariable(const std::string& name, T* va
                                                   T min, T max)
 {
   auto param = std::make_shared<RegisteredParam<T>>(name, description, min, max, variable);
-  *param->variable_ = declare_parameter_if_not_declared(node_, param->name, *param->variable_, *param);
+  *param->variable_ = node_->declare_parameter(param->name, *param->variable_, *param);
   getRegisteredVector<T>().push_back(param);
 }
 

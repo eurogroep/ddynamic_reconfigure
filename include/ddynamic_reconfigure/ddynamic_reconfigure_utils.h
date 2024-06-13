@@ -32,7 +32,6 @@
 
 #include <limits>
 #include <map>
-#include <rcl_interfaces/msg/detail/parameter_descriptor__struct.hpp>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -79,30 +78,4 @@ template <>
 inline std::string getMax()
 {
   return "";
-}
-
-//!
-//! \brief declare_parameter_if_not_declared
-//! \tparam NodeT Type of the node
-//! \param node Node
-//! \param param_name Parameter name
-//! \param default_value Default value
-//! \param parameter_descriptor Descriptor of the parameter
-//! \return parameter value
-//!
-template <typename NodeT, typename ParamT>
-ParamT declare_parameter_if_not_declared(
-    NodeT node, const std::string& param_name, const ParamT& default_value,
-    const rcl_interfaces::msg::ParameterDescriptor& parameter_descriptor = rcl_interfaces::msg::ParameterDescriptor())
-{
-  if (!node->has_parameter(param_name))
-  {
-    return node->declare_parameter(param_name, default_value, parameter_descriptor);
-  }
-  else
-  {
-    ParamT param_value;
-    node->get_parameter(param_name, param_value);
-    return param_value;
-  }
 }
