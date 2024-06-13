@@ -34,65 +34,110 @@
 
 namespace ddynamic_reconfigure
 {
-DDynamicReconfigure::DDynamicReconfigure(rclcpp::Node::SharedPtr node) : node_(node)
+template <typename NodeT>
+DDynamicReconfigure<NodeT>::DDynamicReconfigure(NodeT node) : node_(node)
 {
 }
 
 template <>
-std::vector<std::shared_ptr<RegisteredParam<int>>>& DDynamicReconfigure::getRegisteredVector()
+template <>
+std::vector<std::shared_ptr<RegisteredParam<int>>>& DDynamicReconfigure<rclcpp::Node::SharedPtr>::getRegisteredVector()
 {
   return registered_int_;
 }
 
 template <>
-std::vector<std::shared_ptr<RegisteredParam<double>>>& DDynamicReconfigure::getRegisteredVector()
+template <>
+std::vector<std::shared_ptr<RegisteredParam<int>>>&
+DDynamicReconfigure<rclcpp_lifecycle::LifecycleNode::SharedPtr>::getRegisteredVector()
+{
+  return registered_int_;
+}
+
+template <>
+template <>
+std::vector<std::shared_ptr<RegisteredParam<double>>>&
+DDynamicReconfigure<rclcpp::Node::SharedPtr>::getRegisteredVector()
 {
   return registered_double_;
 }
 
 template <>
-std::vector<std::shared_ptr<RegisteredParam<bool>>>& DDynamicReconfigure::getRegisteredVector()
+template <>
+std::vector<std::shared_ptr<RegisteredParam<double>>>&
+DDynamicReconfigure<rclcpp_lifecycle::LifecycleNode::SharedPtr>::getRegisteredVector()
+{
+  return registered_double_;
+}
+
+template <>
+template <>
+std::vector<std::shared_ptr<RegisteredParam<bool>>>& DDynamicReconfigure<rclcpp::Node::SharedPtr>::getRegisteredVector()
 {
   return registered_bool_;
 }
 
 template <>
-std::vector<std::shared_ptr<RegisteredParam<std::string>>>& DDynamicReconfigure::getRegisteredVector()
+template <>
+std::vector<std::shared_ptr<RegisteredParam<bool>>>&
+DDynamicReconfigure<rclcpp_lifecycle::LifecycleNode::SharedPtr>::getRegisteredVector()
+{
+  return registered_bool_;
+}
+
+template <>
+template <>
+std::vector<std::shared_ptr<RegisteredParam<std::string>>>&
+DDynamicReconfigure<rclcpp::Node::SharedPtr>::getRegisteredVector()
 {
   return registered_string_;
 }
 
+template <>
+template <>
+std::vector<std::shared_ptr<RegisteredParam<std::string>>>&
+DDynamicReconfigure<rclcpp_lifecycle::LifecycleNode::SharedPtr>::getRegisteredVector()
+{
+  return registered_string_;
+}
+
+template <typename NodeT>
 template <typename T>
-void DDynamicReconfigure::registerVariable(const std::string& name, T* variable, const std::string& description, T min,
-                                           T max)
+void DDynamicReconfigure<NodeT>::registerVariable(const std::string& name, T* variable, const std::string& description,
+                                                  T min, T max)
 {
   auto param = std::make_shared<RegisteredParam<T>>(name, description, min, max, variable);
   *param->variable_ = node_->declare_parameter(param->name, *param->variable_, *param);
   getRegisteredVector<T>().push_back(param);
 }
 
-void DDynamicReconfigure::publishServicesTopics()
+template <typename NodeT>
+void DDynamicReconfigure<NodeT>::publishServicesTopics()
 {
   param_updated_cb_ = node_->add_on_set_parameters_callback(
       std::bind(&DDynamicReconfigure::paramUpdatedCallback, this, std::placeholders::_1));
 }
 
-void DDynamicReconfigure::setUserCallback(const DDynamicReconfigure::UserCallbackType& callback)
+template <typename NodeT>
+void DDynamicReconfigure<NodeT>::setUserCallback(const DDynamicReconfigure::UserCallbackType& callback)
 {
   user_callback_ = callback;
 }
 
-void DDynamicReconfigure::clearUserCallback()
+template <typename NodeT>
+void DDynamicReconfigure<NodeT>::clearUserCallback()
 {
   user_callback_ = {};
 }
 
-void DDynamicReconfigure::setUserCallback2(const DDynamicReconfigure::UserCallbackType2& callback)
+template <typename NodeT>
+void DDynamicReconfigure<NodeT>::setUserCallback2(const DDynamicReconfigure::UserCallbackType2& callback)
 {
   user_callback2_ = callback;
 }
 
-void DDynamicReconfigure::clearUserCallback2()
+template <typename NodeT>
+void DDynamicReconfigure<NodeT>::clearUserCallback2()
 {
   user_callback2_ = {};
 }
@@ -119,8 +164,9 @@ std::shared_ptr<RegisteredParam<T>> getParam(const std::string& name,
   throw std::runtime_error("Parameter with name '" + name + "' does not exist");
 }
 
+template <typename NodeT>
 rcl_interfaces::msg::SetParametersResult
-DDynamicReconfigure::paramUpdatedCallback(const std::vector<rclcpp::Parameter>& parameters)
+DDynamicReconfigure<NodeT>::paramUpdatedCallback(const std::vector<rclcpp::Parameter>& parameters)
 {
   RCLCPP_DEBUG(node_->get_logger(), "paramUpdatedCallback");
 
@@ -169,18 +215,31 @@ DDynamicReconfigure::paramUpdatedCallback(const std::vector<rclcpp::Parameter>& 
 }
 
 // Explicit int instantiations
-template void DDynamicReconfigure::registerVariable(const std::string& name, int* variable,
-                                                    const std::string& description, int min, int max);
+template void DDynamicReconfigure<rclcpp::Node::SharedPtr>::registerVariable(const std::string& name, int* variable,
+                                                                             const std::string& description, int min,
+                                                                             int max);
+template void DDynamicReconfigure<rclcpp_lifecycle::LifecycleNode::SharedPtr>::registerVariable(
+    const std::string& name, int* variable, const std::string& description, int min, int max);
 
 // Explicit double instantiations
-template void DDynamicReconfigure::registerVariable(const std::string& name, double* variable,
-                                                    const std::string& description, double min, double max);
+template void DDynamicReconfigure<rclcpp::Node::SharedPtr>::registerVariable(const std::string& name, double* variable,
+                                                                             const std::string& description, double min,
+                                                                             double max);
+template void DDynamicReconfigure<rclcpp_lifecycle::LifecycleNode::SharedPtr>::registerVariable(
+    const std::string& name, double* variable, const std::string& description, double min, double max);
 
 // Explicit bool instantiations
-template void DDynamicReconfigure::registerVariable(const std::string& name, bool* variable,
-                                                    const std::string& description, bool min, bool max);
+template void DDynamicReconfigure<rclcpp::Node::SharedPtr>::registerVariable(const std::string& name, bool* variable,
+                                                                             const std::string& description, bool min,
+                                                                             bool max);
+template void DDynamicReconfigure<rclcpp_lifecycle::LifecycleNode::SharedPtr>::registerVariable(
+    const std::string& name, bool* variable, const std::string& description, bool min, bool max);
 
 // Explicit std::string instantiations
-template void DDynamicReconfigure::registerVariable(const std::string& name, std::string* variable,
-                                                    const std::string& description, std::string min, std::string max);
+template void DDynamicReconfigure<rclcpp::Node::SharedPtr>::registerVariable(const std::string& name,
+                                                                             std::string* variable,
+                                                                             const std::string& description,
+                                                                             std::string min, std::string max);
+template void DDynamicReconfigure<rclcpp_lifecycle::LifecycleNode::SharedPtr>::registerVariable(
+    const std::string& name, std::string* variable, const std::string& description, std::string min, std::string max);
 }  // namespace ddynamic_reconfigure
