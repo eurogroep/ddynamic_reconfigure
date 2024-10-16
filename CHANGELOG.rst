@@ -1,6 +1,12 @@
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Changelog for package ddynamic_reconfigure
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Forthcoming
+-----------
+* feat: Declare parameter only if not declared
+* feat: Support multiple node types
+* Contributors: Yannick de Hoop
+
 1.1.1 (2024-05-02)
 ------------------
 * fix: UserCallback2 updates local parameters before callback
