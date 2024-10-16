@@ -1,8 +1,8 @@
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Changelog for package ddynamic_reconfigure
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Forthcoming
------------
+1.2.0 (2024-10-16)
+------------------
 * feat: Declare parameter only if not declared
 * feat: Support multiple node types
 * Contributors: Yannick de Hoop
