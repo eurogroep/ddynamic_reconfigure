@@ -1,8 +1,8 @@
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Changelog for package ddynamic_reconfigure
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Forthcoming
------------
+1.2.1 (2025-02-12)
+------------------
 * fix: Succeed when parameter doesn't exist (`#6 <https://github.com/eurogroep/ddynamic_reconfigure/issues/6>`_)
   Co-authored-by: Yannick de Hoop <yannick.dehoop@lowpad.com>
 * Contributors: Yannick de Hoop
