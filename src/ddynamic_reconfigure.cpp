@@ -161,7 +161,7 @@ std::shared_ptr<RegisteredParam<T>> getParam(const std::string& name,
       return p;
     }
   }
-  throw std::runtime_error("Parameter with name '" + name + "' does not exist");
+  return nullptr;
 }
 
 template <typename NodeT>
@@ -170,25 +170,46 @@ DDynamicReconfigure<NodeT>::paramUpdatedCallback(const std::vector<rclcpp::Param
 {
   RCLCPP_DEBUG(node_->get_logger(), "paramUpdatedCallback");
 
+  bool param_changed = false;
   try
   {
     for (const auto& p : parameters)
     {
       if (p.get_type() == rclcpp::ParameterType::PARAMETER_INTEGER)
       {
-        *getParam(p.get_name(), registered_int_)->variable_ = static_cast<int>(p.as_int());
+        auto param = getParam(p.get_name(), registered_int_);
+        if (param)
+        {
+          *getParam(p.get_name(), registered_int_)->variable_ = static_cast<int>(p.as_int());
+          param_changed = true;
+        }
       }
       else if (p.get_type() == rclcpp::ParameterType::PARAMETER_DOUBLE)
       {
-        *getParam(p.get_name(), registered_double_)->variable_ = p.as_double();
+        auto param = getParam(p.get_name(), registered_double_);
+        if (param)
+        {
+          *getParam(p.get_name(), registered_double_)->variable_ = p.as_double();
+          param_changed = true;
+        }
       }
       else if (p.get_type() == rclcpp::ParameterType::PARAMETER_BOOL)
       {
-        *getParam(p.get_name(), registered_bool_)->variable_ = p.as_bool();
+        auto param = getParam(p.get_name(), registered_bool_);
+        if (param)
+        {
+          *getParam(p.get_name(), registered_bool_)->variable_ = p.as_bool();
+          param_changed = true;
+        }
       }
       else if (p.get_type() == rclcpp::ParameterType::PARAMETER_STRING)
       {
-        *getParam(p.get_name(), registered_string_)->variable_ = p.as_string();
+        auto param = getParam(p.get_name(), registered_string_);
+        if (param)
+        {
+          *getParam(p.get_name(), registered_string_)->variable_ = p.as_string();
+          param_changed = true;
+        }
       }
       else
       {
@@ -198,17 +219,20 @@ DDynamicReconfigure<NodeT>::paramUpdatedCallback(const std::vector<rclcpp::Param
   }
   catch (const std::runtime_error& e)
   {
-    return getResult(false, std::string(e.what()));
+    return getResult(false, e.what());
   }
 
-  if (user_callback_)
+  if (param_changed)
   {
-    user_callback_();
-  }
+    if (user_callback_)
+    {
+      user_callback_();
+    }
 
-  if (user_callback2_)
-  {
-    user_callback2_(parameters);
+    if (user_callback2_)
+    {
+      user_callback2_(parameters);
+    }
   }
 
   return getResult();
